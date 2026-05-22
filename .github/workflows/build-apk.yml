@@ -7,55 +7,48 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: checklist-offline
+
     steps:
-      - name: Baixar código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Instalar Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Instalar Java
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Descobrir pasta do app
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Capacitor
+        run: npm install @capacitor/android @capacitor/core @capacitor/cli
+
+      - name: Init Capacitor
         run: |
-          if [ -f package.json ]; then
-            echo "APP_DIR=." >> $GITHUB_ENV
-          elif [ -f checklist-offline/package.json ]; then
-            echo "APP_DIR=checklist-offline" >> $GITHUB_ENV
-          else
-            echo "package.json não encontrado"
-            exit 1
+          if [ ! -d android ]; then
+            npx cap add android
           fi
 
-      - name: Instalar dependências
-        run: |
-          cd "$APP_DIR"
-          npm install
+      - name: Sync Capacitor
+        run: npx cap sync android
 
-      - name: Criar Android
+      - name: Build APK
         run: |
-          cd "$APP_DIR"
-          npx cap add android
-
-      - name: Sincronizar Capacitor
-        run: |
-          cd "$APP_DIR"
-          npx cap sync android
-
-      - name: Gerar APK
-        run: |
-          cd "$APP_DIR/android"
+          cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Enviar APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: checklist-agt-apk
-          path: ${{ env.APP_DIR }}/android/app/build/outputs/apk/debug/app-debug.apk
+          path: checklist-offline/android/app/build/outputs/apk/debug/app-debug.apk
