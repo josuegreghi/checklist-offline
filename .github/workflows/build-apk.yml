@@ -29,11 +29,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Gerar ícones do app
-        run: npx capacitor-assets generate --android
-
       - name: Install Capacitor
-        run: npm install @capacitor/android @capacitor/core @capacitor/cli
+        run: |
+          npm install @capacitor/android @capacitor/core @capacitor/cli --save
+          npm install @capacitor/assets --save-dev
+
+      - name: Generate Android Icons
+        run: npx capacitor-assets generate --android
 
       - name: Init Capacitor
         run: |
