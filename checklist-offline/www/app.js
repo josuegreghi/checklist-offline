@@ -937,3 +937,77 @@ function abrirFoto(fotoBase64) {
     </html>
   `)
 }
+
+async function enviarRelatorioWhatsApp() {
+  const dados = await listarChecklistsDB()
+
+  const filtroMatricula = document.getElementById('filtroMatricula').value.trim().toLowerCase()
+  const filtroEquipamento = document.getElementById('filtroEquipamento').value.trim().toLowerCase()
+  const filtroData = document.getElementById('filtroData').value
+  const filtroTipo = document.getElementById('filtroTipo').value
+  const filtroNaoOk = document.getElementById('filtroNaoOk').value
+
+  let filtrados = dados
+
+  if (filtroMatricula) {
+    filtrados = filtrados.filter((c) =>
+      String(c.matricula).toLowerCase().includes(filtroMatricula)
+    )
+  }
+
+  if (filtroEquipamento) {
+    filtrados = filtrados.filter((c) =>
+      String(c.equipamento).toLowerCase().includes(filtroEquipamento)
+    )
+  }
+
+  if (filtroData) {
+    filtrados = filtrados.filter((c) => c.data.slice(0, 10) === filtroData)
+  }
+
+  if (filtroTipo) {
+    filtrados = filtrados.filter((c) => c.tipoChecklist === filtroTipo)
+  }
+
+  if (filtroNaoOk === 'SIM') {
+    filtrados = filtrados.filter((c) =>
+      c.itens.some((item) => item.status === 'NÃO OK')
+    )
+  }
+
+  if (filtrados.length === 0) {
+    alert('Nenhum registro filtrado para enviar.')
+    return
+  }
+
+  let mensagem = '📋 *RELATÓRIO DE CHECK-LIST*%0A%0A'
+
+  filtrados
+    .sort((a, b) => new Date(b.data) - new Date(a.data))
+    .slice(0, 10)
+    .forEach((c, index) => {
+      const itensNaoOk = c.itens.filter((item) => item.status === 'NÃO OK')
+
+      mensagem += `*Registro ${index + 1}*%0A`
+      mensagem += `🚜 Equipamento: ${c.equipamento}%0A`
+      mensagem += `📌 Tipo: ${c.tipoChecklist}%0A`
+      mensagem += `👤 Operador: ${c.operador}%0A`
+      mensagem += `🆔 Matrícula: ${c.matricula}%0A`
+      mensagem += `🕒 Data: ${new Date(c.data).toLocaleString('pt-BR')}%0A`
+      mensagem += `📝 Obs geral: ${c.observacaoGeral || 'Sem observação'}%0A`
+      mensagem += `❌ Itens NÃO OK: ${itensNaoOk.length}%0A`
+
+      itensNaoOk.forEach((item) => {
+        mensagem += `   • ${item.item}: ${item.observacao || 'Sem observação'}%0A`
+        mensagem += `     Foto: ${item.foto ? 'SIM' : 'NÃO'}%0A`
+      })
+
+      mensagem += `%0A--------------------%0A%0A`
+    })
+
+  if (filtrados.length > 10) {
+    mensagem += `⚠️ Mostrando apenas os 10 registros mais recentes de ${filtrados.length}.`
+  }
+
+  window.open(`https://wa.me/?text=${mensagem}`, '_blank')
+}
