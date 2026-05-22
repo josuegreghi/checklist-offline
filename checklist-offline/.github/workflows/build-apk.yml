@@ -7,32 +7,42 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: checklist-offline
+
     steps:
-      - name: Baixar código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Instalar Node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Instalar dependências
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install dependencies
         run: npm install
 
-      - name: Criar Android
+      - name: Add Android
         run: npx cap add android
 
-      - name: Sincronizar arquivos
+      - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Dar permissão Gradle
-        run: chmod +x android/gradlew
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
-      - name: Gerar APK debug
-        run: cd android && ./gradlew assembleDebug
-
-      - name: Enviar APK como artefato
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: checklist-agt-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: checklist-agt-apk
+          path: checklist-offline/android/app/build/outputs/apk/debug/app-debug.apk
