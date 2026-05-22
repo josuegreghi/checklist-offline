@@ -1,0 +1,21 @@
+checklist-offline/
+├── index.html
+├── style.css
+├── app.js
+├── db.js
+├── manifest.json
+└── sw.js
+
+index.html      → tela do aplicativo
+style.css       → visual bonito
+app.js          → lógica do checklist
+db.js           → banco offline no celular
+manifest.json   → transforma em app instalável
+sw.js           → faz funcionar sem internet
+
+1. index.html
+2. style.css
+3. db.js
+4. app.js
+5. manifest.json
+6. sw.js
