@@ -655,7 +655,7 @@ async function gerarRelatorio() {
 
             ${
               item.foto
-                ? `<img src="${item.foto}" class="foto" />`
+                ? `<button class="link-foto" onclick="abrirFoto('${item.foto}')">📷 Abrir foto</button>`
                 : ''
             }
 
@@ -908,4 +908,32 @@ async function exportarZipComFotos() {
   document.body.removeChild(link)
 
   URL.revokeObjectURL(url)
+}
+
+function abrirFoto(fotoBase64) {
+  const novaJanela = window.open()
+  novaJanela.document.write(`
+    <html>
+      <head>
+        <title>Foto do apontamento</title>
+        <style>
+          body {
+            margin: 0;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+          }
+          img {
+            max-width: 100%;
+            max-height: 100vh;
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${fotoBase64}" />
+      </body>
+    </html>
+  `)
 }
