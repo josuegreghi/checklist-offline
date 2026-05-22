@@ -1,1 +1,383 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Check-list Offline</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+
+  <meta name="theme-color" content="#2563eb" />
+</head>
+
+<body>
+  <main class="container">
+
+    <!-- LOGIN -->
+
+    <section id="loginScreen" class="card login-card">
+
+      <img src="logo-agt.png" class="logo-login" alt="Logo AGT" />
+	<div class="logo-topo-box">
+  	
+  	<div>
+    		<h1>Check-list de Frota</h1>
+    		<p id="usuarioLogado"></p>
+  	</div>
+	</div>
+
+      <label>Matrícula</label>
+
+      <input
+        id="matricula"
+        placeholder="Digite sua matrícula"
+      />
+
+      <label>Senha</label>
+
+      <input
+        id="senha"
+        type="password"
+        placeholder="Digite sua senha"
+      />
+
+      <button onclick="login()">
+        Entrar
+      </button>
+
+      <p class="ajuda">
+        ... Loading...
+      </p>
+    </section>
+
+    <!-- APP -->
+
+    <section id="appScreen" class="hidden">
+
+      <!-- TOPO -->
+
+      <div class="topo">
+        <div>
+          <img src="logo-agt.png" class="logo-login" alt="Logo AGT" />
+	  <h1>Check-list de Frota</h1>
+	  <p>Aplicativo offline</p>
+
+          <p id="usuarioLogado"></p>
+        </div>
+
+        <button class="btn-sair" onclick="sair()">
+          Sair
+        </button>
+      </div>
+
+      <!-- MENU -->
+
+      <div class="menu-app">
+        <button onclick="abrirTela('checklist')">
+          📝 Novo Check-list
+        </button>
+
+        <button onclick="abrirTela('relatorios')">
+          📊 Relatórios
+        </button>
+      </div>
+
+      <!-- TELA CHECKLIST -->
+
+      <div id="telaChecklist">
+
+        <!-- DADOS -->
+
+        <section class="card">
+
+          <h2>Dados do Check-list</h2>
+
+          <label>Tipo de Check-list</label>
+
+          <div class="tipo-grid">
+
+            <button
+              onclick="selecionarTipo('CAMINHAO')"
+              id="btnCaminhao"
+            >
+              🚛 Caminhão / Carreta
+            </button>
+
+            <button
+              onclick="selecionarTipo('EMPILHADEIRA')"
+              id="btnEmpilhadeira"
+            >
+              🏗️ Empilhadeira
+            </button>
+
+          </div>
+
+          <label>Equipamento / Placa</label>
+
+          <input
+            id="equipamento"
+            placeholder="Exemplo: 14800"
+            oninput="buscarHistorico()"
+          />
+
+          <label>Observação geral</label>
+
+          <textarea
+            id="observacaoGeral"
+            placeholder="Digite uma observação geral"
+          ></textarea>
+
+        </section>
+
+        <!-- CHECKLIST -->
+
+        <section
+          id="checklistArea"
+          class="card hidden"
+        >
+
+          <div class="progresso-box">
+
+            <div class="progresso-texto">
+              <strong id="contadorItem"></strong>
+
+              <span id="percentual"></span>
+            </div>
+
+            <div class="barra">
+              <div id="barraProgresso"></div>
+            </div>
+
+          </div>
+
+          <h2 id="grupoTitulo"></h2>
+
+          <p id="grupoDescricao"></p>
+
+          <!-- ULTIMO APONTAMENTO -->
+
+          <div
+            id="ultimoApontamento"
+            class="ultimo hidden"
+          ></div>
+
+          <!-- ITEM -->
+
+          <div
+            id="itemAtualBox"
+            class="item"
+          >
+
+            <h3 id="itemTitulo"></h3>
+
+            <!-- STATUS -->
+
+            <div class="opcoes">
+
+              <button
+                onclick="marcarStatus('OK')"
+                id="statusOK"
+              >
+                ✅ OK
+              </button>
+
+              <button
+                onclick="marcarStatus('NÃO OK')"
+                id="statusNaoOK"
+              >
+                ❌ NÃO OK
+              </button>
+
+              <button
+                onclick="marcarStatus('NÃO SE APLICA')"
+                id="statusNA"
+              >
+                ➖ N/A
+              </button>
+
+            </div>
+
+            <!-- OBSERVACAO -->
+
+            <label>Observação deste item</label>
+
+            <textarea
+              id="observacaoItem"
+              placeholder="Descreva se necessário"
+            ></textarea>
+
+            <!-- FOTO -->
+
+            <label>Foto deste item</label>
+
+            <input
+              id="fotoItem"
+              type="file"
+              accept="image/*"
+              capture="environment"
+            />
+
+            <p id="fotoSelecionada"></p>
+
+          </div>
+
+          <!-- NAVEGACAO -->
+
+          <div class="navegacao">
+
+            <button onclick="voltarItem()">
+              Voltar
+            </button>
+
+            <button
+              onclick="proximoItem()"
+              id="btnProximo"
+            >
+              Próximo
+            </button>
+
+            <button
+              onclick="salvarChecklist()"
+              id="btnFinalizar"
+              class="hidden"
+            >
+              Finalizar Check-list
+            </button>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- TELA RELATORIOS -->
+
+      <div
+        id="telaRelatorios"
+        class="hidden"
+      >
+
+        <section class="card">
+
+          <h2>Relatórios Offline</h2>
+
+          <!-- INDICADORES -->
+
+          <div class="relatorio-grid">
+
+            <div class="indicador">
+              <strong id="totalChecklists">0</strong>
+              <span>Total de checklists</span>
+            </div>
+
+            <div class="indicador indicador-erro">
+              <strong id="totalNaoOk">0</strong>
+              <span>Itens NÃO OK</span>
+            </div>
+
+          </div>
+
+          <!-- FILTROS -->
+
+          <label>Filtrar por matrícula</label>
+
+          <input
+            id="filtroMatricula"
+            oninput="gerarRelatorio()"
+            placeholder="Exemplo: 12345"
+          />
+
+          <label>Filtrar por equipamento</label>
+
+          <input
+            id="filtroEquipamento"
+            oninput="gerarRelatorio()"
+            placeholder="Exemplo: 14800"
+          />
+
+          <label>Filtrar por data</label>
+
+          <input
+            id="filtroData"
+            type="date"
+            onchange="gerarRelatorio()"
+          />
+
+          <label>Filtrar por tipo</label>
+
+          <select
+            id="filtroTipo"
+            onchange="gerarRelatorio()"
+          >
+            <option value="">Todos</option>
+
+            <option value="CAMINHAO">
+              Caminhão / Carreta
+            </option>
+
+            <option value="EMPILHADEIRA">
+              Empilhadeira
+            </option>
+          </select>
+
+          <label>Mostrar somente com itens NÃO OK</label>
+
+          <select
+            id="filtroNaoOk"
+            onchange="gerarRelatorio()"
+          >
+            <option value="">Todos</option>
+
+            <option value="SIM">
+              Somente com NÃO OK
+            </option>
+          </select>
+
+          <button onclick="gerarRelatorio()">
+            Atualizar Relatório
+          </button>
+
+	  <button onclick="exportarCSV()">
+	  📥 Exportar CSV
+          </button>
+
+	  <button onclick="exportarBackupCompleto()">
+	  📦 Exportar Json Completo com Fotos
+	  </button>
+
+	  <button onclick="exportarZipComFotos()">
+	  🧠💾 Exportar ZIP com CSV + Fotos
+	  </button>
+
+          <!-- LISTA -->
+
+          <div id="relatorioLista"></div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script src="db.js"></script>
+
+  <script src="app.js"></script>
+
+  <!-- SERVICE WORKER -->
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+    }
+  </script>
+
+</body>
+</html>
