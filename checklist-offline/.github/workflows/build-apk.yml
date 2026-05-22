@@ -1,0 +1,38 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Criar Android
+        run: npx cap add android
+
+      - name: Sincronizar arquivos
+        run: npx cap sync android
+
+      - name: Dar permissão Gradle
+        run: chmod +x android/gradlew
+
+      - name: Gerar APK debug
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Enviar APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: checklist-agt-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
