@@ -1,6 +1,5 @@
 {
   "appId": "com.agt.checklist",
   "appName": "Checklist AGT",
-  "webDir": ".",
-  "bundledWebRuntime": false
+  "webDir": "www"
 }
