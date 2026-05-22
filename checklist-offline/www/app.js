@@ -402,32 +402,34 @@ function validarItemAtual() {
   return true
 }
 
+function manterPosicao(callback) {
+  const posicaoAtual = window.scrollY
+
+  callback()
+
+  setTimeout(() => {
+    window.scrollTo(0, posicaoAtual)
+  }, 0)
+}
+
 function proximoItem() {
   if (!validarItemAtual()) return
 
   const total = getTodosItens().length
 
   if (passoAtual < total - 1) {
-    passoAtual++
-
-    renderItem()
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+    manterPosicao(() => {
+      passoAtual++
+      renderItem()
     })
   }
 }
 
 function voltarItem() {
   if (passoAtual > 0) {
-    passoAtual--
-
-    renderItem()
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+    manterPosicao(() => {
+      passoAtual--
+      renderItem()
     })
   }
 }
