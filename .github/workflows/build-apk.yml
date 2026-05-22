@@ -34,14 +34,14 @@ jobs:
           npm install @capacitor/android @capacitor/core @capacitor/cli --save
           npm install @capacitor/assets --save-dev
 
-      - name: Generate Android Icons
-        run: npx capacitor-assets generate --android
+      - name: Remove Android antigo
+        run: rm -rf android
 
-      - name: Init Capacitor
-        run: |
-          if [ ! -d android ]; then
-            npx cap add android
-          fi
+      - name: Criar Android
+        run: npx cap add android
+
+      - name: Gerar ícone Android
+        run: npx capacitor-assets generate --android --assetPath assets
 
       - name: Sync Capacitor
         run: npx cap sync android
